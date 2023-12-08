@@ -14,6 +14,7 @@ export class AuthModule {
 	getRoutes(): Router {
 		const router = Router()
 		router.post('/signup', this.middleware.validateSignupRequest, this.controller.signUp)
+		router.post('/login', this.middleware.validateLoginRequest, this.controller.loginUser)
 		return router
 	}
 }

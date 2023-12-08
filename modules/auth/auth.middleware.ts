@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
 import { prisma } from '../../prismaClient'
+const bcrypt = require('bcrypt')
 
 import { SignupDTO } from './dtos/signup.dto'
+import { LoginDTO } from './dtos/login.dto'
 import { validateOrReject } from 'class-validator'
 
 export class AuthMiddleware {
@@ -48,5 +50,38 @@ export class AuthMiddleware {
 		}
 
 		next()
+	}
+
+	async validateLoginRequest(req: Request, res: Response, next: NextFunction) {
+		const loginData = new LoginDTO(req.body)
+
+		//validate dto
+		try {
+			await validateOrReject(loginData)
+		} catch (err) {
+			return res.status(400).send(err)
+		}
+
+		//validate password
+		const user = await prisma.authUsers.findUnique({
+			where: {
+				email: loginData.email,
+			},
+		})
+
+		if (!user) {
+			return res.status(500).send('Invalid email or password')
+		}
+
+		try {
+			if (await bcrypt.compare(req.body.password, user?.password_hash)) {
+				console.log('Valid login credentials')
+				next()
+			} else {
+				return res.status(500).send('Invalid Username or Password')
+			}
+		} catch (error) {
+			res.status(500).send('Invalid email or password')
+		}
 	}
 }
