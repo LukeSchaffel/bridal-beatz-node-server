@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AuthUsers {
+  user_id       Int        @id @default(autoincrement())
+  first_name    String     @db.VarChar(45)
+  last_name     String     @db.VarChar(45)
+  email         String     @unique @db.VarChar(45)
+  password_hash String     @db.VarChar(60)
+  phone         String?    @db.VarChar(45)
+  accounts      Accounts[]
+  is_admin      Boolean    @default(false)
+
+  @@map("users")
+}
+
+model Accounts {
+  account_id Int               @id @default(autoincrement())
+  first_name String            @db.VarChar(45)
+  last_name  String            @db.VarChar(45)
+  email      String            @unique @db.VarChar(45)
+  phone      String?           @db.VarChar(45)
+  user_id    Int
+  type       ACCOUNT_TYPE_ENUM
+
+  authUsers AuthUsers @relation(fields: [user_id], references: [user_id])
+}
+
+enum ACCOUNT_TYPE_ENUM {
+  client
+  vendor
+  admin
+}

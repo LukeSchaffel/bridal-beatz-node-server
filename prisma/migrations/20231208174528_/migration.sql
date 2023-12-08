@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "ACCOUNT_TYPE_ENUM" ADD VALUE 'admin';
