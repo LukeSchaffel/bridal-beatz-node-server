@@ -14,12 +14,12 @@ export class AuthMiddleware {
 		try {
 			await validateOrReject(data)
 		} catch (err) {
-			return res.status(400).send(err)
+			return res.status(400).send({ message: 'Invalid signup details' })
 		}
 
 		//reject if passwords dont match
 		if (data.password !== data.password2) {
-			return res.status(400).send('Passwords must match')
+			return res.status(400).send({ message: 'Passwords must match' })
 		}
 
 		//reject if email is in wrong format
@@ -29,7 +29,7 @@ export class AuthMiddleware {
 				/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 			)
 		if (!validatedEmail) {
-			return res.status(501).send('Please Enter a Valid Email Address')
+			return res.status(501).send({ message: 'Please Enter a Valid Email Address' })
 		}
 
 		//reject if email already exists
@@ -46,7 +46,7 @@ export class AuthMiddleware {
 
 		//reject if user is trying to make admin account
 		if (data.type === 'admin') {
-			return res.status(401).send('Unauthorized')
+			return res.status(401).send({ message: 'Unauthorized' })
 		}
 
 		next()
@@ -59,7 +59,7 @@ export class AuthMiddleware {
 		try {
 			await validateOrReject(loginData)
 		} catch (err) {
-			return res.status(400).send(err)
+			return res.status(400).send({ message: JSON.stringify(err) })
 		}
 
 		//validate password
@@ -70,18 +70,17 @@ export class AuthMiddleware {
 		})
 
 		if (!user) {
-			return res.status(500).send('Invalid email or password')
+			return res.status(500).send({ error: 'Invalid email or password' })
 		}
 
 		try {
 			if (await bcrypt.compare(req.body.password, user?.password_hash)) {
-				console.log('Valid login credentials')
 				next()
 			} else {
-				return res.status(500).send('Invalid Username or Password')
+				return res.status(500).send({ error: 'Invalid email or Password' })
 			}
 		} catch (error) {
-			res.status(500).send('Invalid email or password')
+			res.status(500).send({ error: 'Invalid email or password' })
 		}
 	}
 }

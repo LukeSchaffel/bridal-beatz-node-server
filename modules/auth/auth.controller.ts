@@ -68,7 +68,7 @@ export class AuthController {
 			})
 			if (userToLogin) {
 				const { user, token } = (await AuthService.login(userToLogin.user_id)) ?? {}
-        res.status(200).json({ user, token })
+				res.status(200).json({ user, token })
 			}
 		} catch (error) {
 			res.status(500).send(error)
