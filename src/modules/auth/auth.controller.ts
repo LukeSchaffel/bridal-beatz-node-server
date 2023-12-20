@@ -1,11 +1,13 @@
 import { Request, Response } from 'express'
-import { prisma } from '../../prismaClient'
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+import { prisma } from '../../../prismaClient'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
+import { AuthSelectors } from './selectors/auth.selectors'
 import { AuthService } from './auth.service'
 import { SignupDTO } from './dtos/signup.dto'
 import { LoginDTO } from './dtos/login.dto'
+import { AuthenticatedRequest } from '../../shared/interfaces/authenticatedRequest'
 
 export class AuthController {
 	async signUp(req: Request, res: Response) {
@@ -28,28 +30,15 @@ export class AuthController {
 							last_name: reqData.last_name,
 							email: reqData.email.toLowerCase(),
 							type: reqData.type,
+							...(reqData.phone && { phone: reqData.phone }),
 						},
 					},
 				},
-				select: {
-					first_name: true,
-					last_name: true,
-					email: true,
-					is_admin: true,
-					user_id: true,
-					accounts: {
-						select: {
-							first_name: true,
-							last_name: true,
-							email: true,
-							type: true,
-						},
-					},
-				},
+				select: AuthSelectors.userWithAccount,
 			})
 
-			const { user, token } = (await AuthService.login(newUser.user_id)) ?? {}
-			res.status(200).json({ user, token })
+			const { authUser, token } = (await AuthService.login(newUser.user_id)) ?? {}
+			res.status(200).json({ authUser, token })
 		} catch (error) {
 			res.send(error)
 		}
@@ -67,9 +56,22 @@ export class AuthController {
 				},
 			})
 			if (userToLogin) {
-				const { user, token } = (await AuthService.login(userToLogin.user_id)) ?? {}
-				res.status(200).json({ user, token })
+				const { authUser, token } = (await AuthService.login(userToLogin.user_id)) ?? {}
+				res.status(200).json({ authUser, token })
 			}
+		} catch (error) {
+			res.status(500).send(error)
+		}
+	}
+
+	async refreshUser(req: AuthenticatedRequest, res: Response) {
+		try {
+			const authUser = await prisma.authUsers.findFirst({
+				where: { user_id: req.authUser?.user_id },
+				select: AuthSelectors.userWithAccount,
+			})
+
+			res.status(200).json({ authUser })
 		} catch (error) {
 			res.status(500).send(error)
 		}

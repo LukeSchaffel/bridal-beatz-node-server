@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
-import { AuthModule } from "./modules/auth";
+import { AuthModule } from "./src/modules/auth";
 import dotenv from "dotenv";
 import cors from 'cors';
 

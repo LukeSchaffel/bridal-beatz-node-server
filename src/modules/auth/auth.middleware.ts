@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { prisma } from '../../prismaClient'
+import { prisma } from '../../../prismaClient'
 const bcrypt = require('bcrypt')
 
 import { SignupDTO } from './dtos/signup.dto'
@@ -70,17 +70,17 @@ export class AuthMiddleware {
 		})
 
 		if (!user) {
-			return res.status(500).send({ error: 'Invalid email or password' })
+			return res.status(500).send({ messagae: 'Invalid email or password' })
 		}
 
 		try {
 			if (await bcrypt.compare(req.body.password, user?.password_hash)) {
 				next()
 			} else {
-				return res.status(500).send({ error: 'Invalid email or Password' })
+				return res.status(500).send({ message: 'Invalid email or Password' })
 			}
 		} catch (error) {
-			res.status(500).send({ error: 'Invalid email or password' })
+			res.status(500).send({ message: 'Invalid email or password' })
 		}
 	}
 }
