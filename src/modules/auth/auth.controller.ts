@@ -25,13 +25,15 @@ export class AuthController {
 					password_hash: hashedPassword,
 					...(reqData.phone && { phone: reqData.phone }),
 					accounts: {
-						create: {
-							first_name: reqData.first_name,
-							last_name: reqData.last_name,
-							email: reqData.email.toLowerCase(),
-							type: reqData.type,
-							...(reqData.phone && { phone: reqData.phone }),
-						},
+						create: [
+							{
+								first_name: reqData.first_name,
+								last_name: reqData.last_name,
+								email: reqData.email.toLowerCase(),
+								type: reqData.type,
+								...(reqData.phone ? { phone: reqData.phone } : {}),
+							},
+						],
 					},
 				},
 				select: AuthSelectors.userWithAccount,

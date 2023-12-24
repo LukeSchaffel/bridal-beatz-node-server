@@ -24,19 +24,63 @@ model AuthUsers {
 }
 
 model Accounts {
-  account_id Int               @id @default(autoincrement())
-  first_name String            @db.VarChar(45)
-  last_name  String            @db.VarChar(45)
-  email      String            @unique @db.VarChar(45)
-  phone      String?           @db.VarChar(45)
-  user_id    Int
-  type       ACCOUNT_TYPE_ENUM
+  account_id  Int               @id @default(autoincrement())
+  first_name  String            @db.VarChar(45)
+  last_name   String            @db.VarChar(45)
+  email       String            @unique @db.VarChar(45)
+  phone       String?           @db.VarChar(45)
+  user_id     Int
+  type        ACCOUNT_TYPE_ENUM @default(vendor)
+  vendor_type VENDOR_TYPE_ENUM?
+  genre       GENRE_ENUM[]      @default([])
 
-  authUsers AuthUsers @relation(fields: [user_id], references: [user_id])
+  location             Locations[]
+  links                Links[]
+  authUsers            AuthUsers   @relation(fields: [user_id], references: [user_id])
+}
+
+model Links {
+  link_id    Int    @id @default(autoincrement())
+  account_id Int
+  title      String @db.VarChar(45)
+  url        String @db.VarChar(45)
+
+  account Accounts @relation(fields: [account_id], references: [account_id])
+}
+
+model Locations {
+  location_id Int      @id @default(autoincrement())
+  account_id  Int
+  city        String
+  state       String
+  zip         String
+  account     Accounts @relation(fields: [account_id], references: [account_id])
+}
+
+enum GENRE_ENUM {
+  pop
+  rock
+  rap
+  hiphop
+  country
+  randb
+  jazz
+  electronic
+  funk
+  reggae
+  disco
+  classical
+  church
 }
 
 enum ACCOUNT_TYPE_ENUM {
   client
   vendor
   admin
+}
+
+enum VENDOR_TYPE_ENUM {
+  band
+  dj
+  musician
 }
