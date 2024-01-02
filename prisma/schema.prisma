@@ -32,11 +32,12 @@ model Accounts {
   user_id     Int
   type        ACCOUNT_TYPE_ENUM @default(vendor)
   vendor_type VENDOR_TYPE_ENUM?
+  client_type CLIENT_TYPE_ENUM?
   genre       GENRE_ENUM[]      @default([])
 
-  location             Locations[]
-  links                Links[]
-  authUsers            AuthUsers   @relation(fields: [user_id], references: [user_id])
+  locations Locations[]
+  links     Links[]
+  authUser  AuthUsers   @relation(fields: [user_id], references: [user_id])
 }
 
 model Links {
@@ -83,4 +84,11 @@ enum VENDOR_TYPE_ENUM {
   band
   dj
   musician
+}
+
+enum CLIENT_TYPE_ENUM {
+  bride
+  groom
+  planner
+  venue
 }
