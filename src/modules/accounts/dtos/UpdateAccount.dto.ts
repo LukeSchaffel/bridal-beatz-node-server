@@ -41,11 +41,11 @@ export class UpdateAccountDTO {
 
 	@IsEnum(VENDOR_TYPE_ENUM)
 	@IsOptional()
-	vendor_type?: string
+	vendor_type?: VENDOR_TYPE_ENUM
 
 	@IsEnum(CLIENT_TYPE_ENUM)
 	@IsOptional()
-	client_type?: string
+	client_type?: CLIENT_TYPE_ENUM
 
 	@ValidateNested({ each: true })
 	@IsOptional()

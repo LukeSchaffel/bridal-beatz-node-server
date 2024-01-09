@@ -7,6 +7,7 @@ import { AuthSelectors } from './selectors/auth.selectors'
 import { AuthService } from './auth.service'
 import { SignupDTO } from './dtos/signup.dto'
 import { LoginDTO } from './dtos/login.dto'
+import { UpdateAccountDTO } from '../accounts/dtos/UpdateAccount.dto'
 import { AuthenticatedRequest } from '../../shared/interfaces/authenticatedRequest'
 
 export class AuthController {
@@ -74,6 +75,31 @@ export class AuthController {
 			})
 
 			res.status(200).json({ authUser })
+		} catch (error) {
+			res.status(500).send(error)
+		}
+	}
+
+	async updateAccount(req: AuthenticatedRequest, res: Response) {
+		try {
+			const account_id = parseInt(req.params.account_id, 10)
+			const reqData = new UpdateAccountDTO(req.body)
+
+			const { first_name, last_name, phone, vendor_type, client_type, genre, locations, links } = reqData
+
+			const updatedAccount = await prisma.accounts.update({
+				where: { account_id },
+				data: {
+					first_name,
+					last_name,
+					phone,
+					vendor_type,
+					client_type,
+					genre,
+				},
+			})
+
+			res.status(200).json({ data: { account: updatedAccount } })
 		} catch (error) {
 			res.status(500).send(error)
 		}
