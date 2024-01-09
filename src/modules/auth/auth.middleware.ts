@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt')
 import { SignupDTO } from './dtos/signup.dto'
 import { LoginDTO } from './dtos/login.dto'
 import { validateOrReject } from 'class-validator'
+import { AuthUsers } from '@prisma/client'
+import { AuthenticatedRequest } from '../../shared/interfaces/authenticatedRequest'
 
 export class AuthMiddleware {
 	async validateSignupRequest(req: Request, res: Response, next: NextFunction) {

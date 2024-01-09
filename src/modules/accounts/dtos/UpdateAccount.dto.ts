@@ -51,7 +51,7 @@ export class UpdateAccountDTO {
 	@IsOptional()
 	locations?: Location[]
 
-	@ValidateNested({ each: true })
+	@IsEnum(GENRE_ENUM, { each: true })
 	@IsOptional()
 	genre?: GENRE_ENUM[]
 

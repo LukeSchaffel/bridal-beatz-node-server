@@ -22,7 +22,6 @@ export class AuthModule {
 			this.controller.loginUser
 		)
 		router.post('/refreshUser', AuthenticateUserMiddleware.applyMiddleware(), this.controller.refreshUser)
-		router.patch('/updateAccount/:account_id', AuthenticateUserMiddleware.applyMiddleware(), this.controller.updateAccount)
 		return router
 	}
 }

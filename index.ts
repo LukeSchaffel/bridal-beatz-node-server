@@ -3,7 +3,7 @@ import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import cors from 'cors'
 
-import { AccountModule } from './src/modules/accounts'
+import { AccountsModule } from './src/modules/accounts'
 import { AuthModule } from './src/modules/auth'
 
 dotenv.config()
@@ -24,4 +24,4 @@ app.listen(port, () => {
 })
 
 app.use('/api/auth', new AuthModule().getRoutes())
-app.use('/accounts', new AccountModule().getRoutes())
+app.use('/api/accounts', new AccountsModule().getRoutes())

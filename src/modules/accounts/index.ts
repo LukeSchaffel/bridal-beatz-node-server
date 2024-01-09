@@ -1,21 +1,27 @@
 import { Router } from 'express'
 import { AuthenticateUserMiddleware } from '../../shared/middleware/shared.middleware'
-import { AccountController } from './accounts.controller'
+import { AccountsController } from './accounts.controller'
+import { AccountsMiddleware } from './accounts.middleware'
 
-export class AccountModule {
-	controller: AccountController
-	// middleware: AccountMiddleware
+export class AccountsModule {
+	controller: AccountsController
+	middleware: AccountsMiddleware
 
 	constructor() {
-		this.controller = new AccountController()
-		// this.middleware = new AccountMiddleware()
+		this.controller = new AccountsController()
+		this.middleware = new AccountsMiddleware()
 	}
 
 	getRoutes(): Router {
 		const router = Router()
 
 		router.patch('/update', AuthenticateUserMiddleware.applyMiddleware(), this.controller.updateAccount)
-
+		router.patch(
+			'/updateAccount/:account_id',
+			AuthenticateUserMiddleware.applyMiddleware(),
+			this.middleware.validateUpdateAccountRequest,
+			this.controller.updateAccount
+		)
 		return router
 	}
 }
