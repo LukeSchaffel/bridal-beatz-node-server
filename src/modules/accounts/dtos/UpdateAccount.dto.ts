@@ -1,7 +1,13 @@
 import { CLIENT_TYPE_ENUM, VENDOR_TYPE_ENUM, GENRE_ENUM } from '@prisma/client'
-import { IsString, IsEnum, IsOptional, ValidateNested } from 'class-validator'
+import { IsString, IsEnum, IsOptional, ValidateNested, IsNumber } from 'class-validator'
 
-class Location {
+export class CreateOrUpdateLocationDTO {
+	constructor(options: CreateOrUpdateLocationDTO) {
+		this.city = options.city
+		this.state = options.state
+		this.zip = options.zip
+		this.location_id = options.location_id
+	}
 	@IsString()
 	@IsOptional()
 	city?: string
@@ -13,6 +19,10 @@ class Location {
 	@IsString()
 	@IsOptional()
 	zip?: string
+
+	@IsNumber()
+	@IsOptional()
+	location_id?: number
 }
 
 export class UpdateAccountDTO {
@@ -49,7 +59,7 @@ export class UpdateAccountDTO {
 
 	@ValidateNested({ each: true })
 	@IsOptional()
-	locations?: Location[]
+	locations?: CreateOrUpdateLocationDTO[]
 
 	@IsEnum(GENRE_ENUM, { each: true })
 	@IsOptional()
