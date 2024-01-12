@@ -22,6 +22,7 @@ export class AccountsModule {
 			this.middleware.validateUpdateAccountRequest,
 			this.controller.updateAccount
 		)
+		router.get('/accounts', AuthenticateUserMiddleware.applyMiddleware(), this.controller.listAccounts)
 		return router
 	}
 }
