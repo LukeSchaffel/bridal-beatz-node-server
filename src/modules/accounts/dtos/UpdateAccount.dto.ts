@@ -35,6 +35,8 @@ export class UpdateAccountDTO {
 		this.genre = options.genre
 		this.locations = options.locations
 		this.links = options.links
+		this.bio = options.bio
+		this.about_me = options.about_me
 	}
 
 	@IsString()
@@ -48,6 +50,14 @@ export class UpdateAccountDTO {
 	@IsString()
 	@IsOptional()
 	phone?: string
+
+	@IsString()
+	@IsOptional()
+	bio?: string
+
+	@IsString()
+	@IsOptional()
+	about_me?: string
 
 	@IsEnum(VENDOR_TYPE_ENUM)
 	@IsOptional()

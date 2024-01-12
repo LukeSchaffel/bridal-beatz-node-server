@@ -19,6 +19,8 @@ export class AuthSelectors {
 				genre: true,
 				locations: true,
 				links: true,
+				bio: true,
+				about_me: true,
 			},
 		},
 	}

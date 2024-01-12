@@ -11,7 +11,7 @@ export class AccountsController {
 			const account_id = parseInt(req.params.account_id, 10)
 			const reqData = new UpdateAccountDTO(req.body)
 
-			const { first_name, last_name, phone, vendor_type, client_type, genre, locations, links } = reqData
+			const { first_name, last_name, phone, vendor_type, client_type, genre, locations, links, bio, about_me } = reqData
 
 			const updatedAccount = await prisma.accounts.update({
 				where: { account_id },
@@ -22,6 +22,8 @@ export class AccountsController {
 					vendor_type,
 					client_type,
 					genre,
+					bio,
+					about_me,
 				},
 			})
 
@@ -89,6 +91,8 @@ export class AccountsController {
 					genre: true,
 					locations: true,
 					links: true,
+					about_me: true,
+					bio: true,
 				},
 			})
 

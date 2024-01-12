@@ -34,6 +34,8 @@ model Accounts {
   vendor_type VENDOR_TYPE_ENUM?
   client_type CLIENT_TYPE_ENUM?
   genre       GENRE_ENUM[]      @default([])
+  bio         String?           @db.VarChar(160)
+  about_me    String?
 
   locations Locations[]
   links     Links[]
