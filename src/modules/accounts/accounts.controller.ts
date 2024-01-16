@@ -4,7 +4,7 @@ import { prisma } from '../../../prismaClient'
 import { AuthenticatedRequest } from '../../shared/interfaces/authenticatedRequest'
 import { UpdateAccountDTO } from './dtos/UpdateAccount.dto'
 import { Locations } from '@prisma/client'
-import { ListAccountsDTO } from './dtos/ListAccounts.DTO'
+import { ListAccountsDTO } from './dtos/ListAccounts.dto'
 
 export class AccountsController {
 	async updateAccount(req: AuthenticatedRequest, res: Response) {
@@ -108,11 +108,26 @@ export class AccountsController {
 			const queryData = new ListAccountsDTO(req.query)
 			const { type, client_type, vendor_type } = queryData
 
-			const accounts = prisma.accounts.findMany({
+			const accounts = await prisma.accounts.findMany({
 				where: {
-					type,
-					vendor_type,
-					client_type,
+					...(type ? { type } : {}),
+					...(vendor_type ? { vendor_type } : {}),
+					...(client_type ? { client_type } : {}),
+				},
+				select: {
+					account_id: true,
+					phone: true,
+					first_name: true,
+					last_name: true,
+					email: true,
+					type: true,
+					vendor_type: true,
+					client_type: true,
+					genre: true,
+					locations: true,
+					links: true,
+					about_me: true,
+					bio: true,
 				},
 			})
 

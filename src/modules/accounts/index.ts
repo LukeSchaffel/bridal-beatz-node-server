@@ -15,6 +15,7 @@ export class AccountsModule {
 	getRoutes(): Router {
 		const router = Router()
 
+		router.get('/', AuthenticateUserMiddleware.applyMiddleware(), this.controller.listAccounts)
 		router.patch('/update', AuthenticateUserMiddleware.applyMiddleware(), this.controller.updateAccount)
 		router.patch(
 			'/updateAccount/:account_id',
@@ -22,7 +23,6 @@ export class AccountsModule {
 			this.middleware.validateUpdateAccountRequest,
 			this.controller.updateAccount
 		)
-		router.get('/accounts', AuthenticateUserMiddleware.applyMiddleware(), this.controller.listAccounts)
 		return router
 	}
 }
