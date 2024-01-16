@@ -106,13 +106,14 @@ export class AccountsController {
 	async listAccounts(req: AuthenticatedRequest, res: Response) {
 		try {
 			const queryData = new ListAccountsDTO(req.query)
-			const { type, client_type, vendor_type } = queryData
+			const { type, client_type, vendor_type, state } = queryData
 
 			const accounts = await prisma.accounts.findMany({
 				where: {
 					...(type ? { type } : {}),
 					...(vendor_type ? { vendor_type } : {}),
 					...(client_type ? { client_type } : {}),
+					...(state ? { locations: { some: { state } } } : {}),
 				},
 				select: {
 					account_id: true,

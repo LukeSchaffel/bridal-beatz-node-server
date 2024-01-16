@@ -6,6 +6,7 @@ export class ListAccountsDTO {
 		this.type = options.type
 		this.vendor_type = options.vendor_type
 		this.client_type = options.client_type
+		this.state = options.state
 	}
 
 	@IsEnum(ACCOUNT_TYPE_ENUM)
@@ -19,4 +20,8 @@ export class ListAccountsDTO {
 	@IsEnum(CLIENT_TYPE_ENUM)
 	@IsOptional()
 	client_type?: CLIENT_TYPE_ENUM
+
+	@IsString()
+	@IsOptional()
+	state?: string
 }
