@@ -5,6 +5,7 @@ import cors from 'cors'
 
 import { AccountsModule } from './src/modules/accounts'
 import { AuthModule } from './src/modules/auth'
+import { ReviewsModule } from './src/modules/reviews'
 
 dotenv.config()
 
@@ -25,3 +26,4 @@ app.listen(port, () => {
 
 app.use('/api/auth', new AuthModule().getRoutes())
 app.use('/api/accounts', new AccountsModule().getRoutes())
+app.use('/api/reviews', new ReviewsModule().getRoutes())

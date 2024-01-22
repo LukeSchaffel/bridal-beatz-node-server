@@ -94,6 +94,7 @@ export class AccountsController {
 					links: true,
 					about_me: true,
 					bio: true,
+					reviews: true,
 				},
 			})
 
@@ -129,6 +130,7 @@ export class AccountsController {
 					links: true,
 					about_me: true,
 					bio: true,
+					reviews: true,
 				},
 			})
 

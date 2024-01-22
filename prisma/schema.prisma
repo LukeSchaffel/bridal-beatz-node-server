@@ -40,6 +40,7 @@ model Accounts {
   locations Locations[]
   links     Links[]
   authUser  AuthUsers   @relation(fields: [user_id], references: [user_id])
+  reviews   Reviews[]
 }
 
 model Links {
@@ -58,6 +59,16 @@ model Locations {
   state       String
   zip         String
   account     Accounts @relation(fields: [account_id], references: [account_id])
+}
+
+model Reviews {
+  review_id  Int    @id @default(autoincrement())
+  content    String
+  rating     Float
+  account_id Int
+  creator_id Int
+
+  account Accounts @relation(fields: [account_id], references: [account_id])
 }
 
 enum GENRE_ENUM {
