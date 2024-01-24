@@ -10,13 +10,31 @@ export class ReviewsController {
 		const account_id = parseInt(req.params.account_id, 10)
 
 		try {
-			const reviews = prisma.reviews.findMany({
+			const reviews = await prisma.reviews.findMany({
 				where: {
 					account_id,
 				},
 			})
 
-			res.status(200).json({ data: reviews })
+			const reviewsWithCreator = await Promise.all(
+				reviews.map(async (review) => {
+					return {
+						...review,
+						creator: await prisma.accounts.findFirst({
+							where: { account_id: review.creator_id },
+							select: {
+								first_name: true,
+								last_name: true,
+								type: true,
+								vendor_type: true,
+								client_type: true,
+							},
+						}),
+					}
+				})
+			)
+
+			res.status(200).json({ data: reviewsWithCreator })
 		} catch (error) {
 			res.status(500).send(error)
 		}
@@ -35,6 +53,14 @@ export class ReviewsController {
 						user_id: authUser?.user_id,
 					},
 				},
+				select: {
+					first_name: true,
+					last_name: true,
+					type: true,
+					vendor_type: true,
+					client_type: true,
+					account_id: true,
+				},
 			})
 
 			if (creator?.account_id) {
@@ -46,7 +72,11 @@ export class ReviewsController {
 						account_id,
 					},
 				})
-				res.status(200).json({ data: review })
+				const reviewWithCreator = {
+					...review,
+					creator,
+				}
+				res.status(200).json({ data: reviewWithCreator })
 			}
 		} catch (error) {
 			console.log(error)

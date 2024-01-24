@@ -3,8 +3,10 @@ import { prisma } from '../../../prismaClient'
 
 import { AuthenticatedRequest } from '../../shared/interfaces/authenticatedRequest'
 import { UpdateAccountDTO } from './dtos/UpdateAccount.dto'
-import { Locations } from '@prisma/client'
+import { Accounts, Locations } from '@prisma/client'
+import { AccountsSelectors } from './accounts.selectors'
 import { ListAccountsDTO } from './dtos/ListAccounts.dto'
+import { AccountsService } from './accounts.service'
 
 export class AccountsController {
 	async updateAccount(req: AuthenticatedRequest, res: Response) {
@@ -80,22 +82,7 @@ export class AccountsController {
 			//get refreshed account
 			const refreshedAccount = await prisma.accounts.findUnique({
 				where: { account_id },
-				select: {
-					account_id: true,
-					phone: true,
-					first_name: true,
-					last_name: true,
-					email: true,
-					type: true,
-					vendor_type: true,
-					client_type: true,
-					genre: true,
-					locations: true,
-					links: true,
-					about_me: true,
-					bio: true,
-					reviews: true,
-				},
+				select: AccountsSelectors.account,
 			})
 
 			res.status(200).json({ data: refreshedAccount })
@@ -116,25 +103,41 @@ export class AccountsController {
 					...(client_type ? { client_type } : {}),
 					...(state ? { locations: { some: { state } } } : {}),
 				},
-				select: {
-					account_id: true,
-					phone: true,
-					first_name: true,
-					last_name: true,
-					email: true,
-					type: true,
-					vendor_type: true,
-					client_type: true,
-					genre: true,
-					locations: true,
-					links: true,
-					about_me: true,
-					bio: true,
-					reviews: true,
-				},
+				select: AccountsSelectors.account,
 			})
 
-			res.status(200).json({ data: accounts })
+			const accountsWithAverageRating = await Promise.all(
+				accounts.map(async (acc) => {
+					return {
+						...acc,
+						rating: await AccountsService.getAverageRating(acc.account_id),
+					}
+				})
+			)
+
+			res.status(200).json({ data: accountsWithAverageRating })
+		} catch (error) {
+			res.status(500).send(error)
+		}
+	}
+
+	async getSingleAccount(req: AuthenticatedRequest, res: Response) {
+		try {
+			const account_id = parseInt(req.params.account_id, 10)
+
+			const account = await prisma.accounts.findFirst({
+				where: { account_id },
+				select: AccountsSelectors.account,
+			})
+
+			if (!account) {
+				throw new Error()
+			}
+			const accountWithRating = {
+				...account,
+				rating: await AccountsService.getAverageRating(account.account_id),
+			}
+			res.status(200).json({ data: accountWithRating })
 		} catch (error) {
 			res.status(500).send(error)
 		}

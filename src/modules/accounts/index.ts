@@ -16,7 +16,8 @@ export class AccountsModule {
 		const router = Router()
 
 		router.get('/', AuthenticateUserMiddleware.applyMiddleware(), this.controller.listAccounts)
-		router.patch('/update', AuthenticateUserMiddleware.applyMiddleware(), this.controller.updateAccount)
+		router.get('/:account_id', AuthenticateUserMiddleware.applyMiddleware(), this.controller.getSingleAccount)
+		// router.patch('/update', AuthenticateUserMiddleware.applyMiddleware(), this.controller.updateAccount)
 		router.patch(
 			'/updateAccount/:account_id',
 			AuthenticateUserMiddleware.applyMiddleware(),

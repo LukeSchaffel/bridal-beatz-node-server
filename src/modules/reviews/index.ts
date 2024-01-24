@@ -11,7 +11,7 @@ export class ReviewsModule {
 
 	getRoutes(): Router {
 		const router = Router()
-		router.get('/', AuthenticateUserMiddleware.applyMiddleware(), this.controller.getReviews)
+		router.get('/:account_id', AuthenticateUserMiddleware.applyMiddleware(), this.controller.getReviews)
 		router.post('/:account_id', AuthenticateUserMiddleware.applyMiddleware(), this.controller.createReview)
 
 		return router
