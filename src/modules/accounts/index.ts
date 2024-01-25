@@ -24,6 +24,7 @@ export class AccountsModule {
 			this.middleware.validateUpdateAccountRequest,
 			this.controller.updateAccount
 		)
+		router.post('/vendorBot/:count', this.controller.botSignupVendor)
 		return router
 	}
 }

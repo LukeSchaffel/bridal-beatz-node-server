@@ -7,6 +7,9 @@ import { Accounts, Locations } from '@prisma/client'
 import { AccountsSelectors } from './accounts.selectors'
 import { ListAccountsDTO } from './dtos/ListAccounts.dto'
 import { AccountsService } from './accounts.service'
+import axios from 'axios'
+import { AuthSelectors } from '../auth/selectors/auth.selectors'
+import { LoremIpsum } from 'lorem-ipsum'
 
 export class AccountsController {
 	async updateAccount(req: AuthenticatedRequest, res: Response) {
@@ -170,6 +173,94 @@ export class AccountsController {
 				rating: await AccountsService.getAverageRating(account.account_id),
 			}
 			res.status(200).json({ data: accountWithRating })
+		} catch (error) {
+			res.status(500).send(error)
+		}
+	}
+
+	async botSignupVendor(req: Request, res: Response) {
+		try {
+			let count = parseInt(req?.params?.count || '1', 10)
+			const newUsers = []
+			for (let i = 0; i < count; i++) {
+				const { data } = await axios.get('http://api.namefake.com')
+				const first_name = data.name.split(' ')[0]
+				const last_name = data.name.split(' ')[1]
+				const phone = data.phone_h
+				const email = `${data.email_u}@${data.email_d}`
+				const genre = [
+					'pop',
+					'rock',
+					'rap',
+					'hiphop',
+					'country',
+					'randb',
+					'jazz',
+					'electronic',
+					'funk',
+					'reggae',
+					'disco',
+					'classical',
+					'church',
+				]
+					.sort(() => 0.5 - Math.random())
+					.slice(0, 3)
+				const address = data.address.split('\n')
+				const cityStateZip = address[1]
+				const stateZip = cityStateZip.split(',')[1].trim()
+				const city = cityStateZip.split(',')[0]
+				const state = stateZip.split(' ')[0]
+				const zip = stateZip.split(' ')[1].split('-')[0]
+				const lorem = new LoremIpsum({
+					sentencesPerParagraph: {
+						max: 8,
+						min: 4,
+					},
+					wordsPerSentence: {
+						max: 16,
+						min: 4,
+					},
+				})
+
+				const about_me = lorem.generateParagraphs(3)
+
+				try {
+					const newUser = await prisma.authUsers.create({
+						data: {
+							first_name,
+							last_name,
+							email,
+							is_admin: false,
+							password_hash: 'password1',
+							...(data.phone && { phone: data.phone }),
+							accounts: {
+								create: [
+									{
+										first_name: data.name.split(' ')[0],
+										last_name: data.name.split(' ')[1],
+										email,
+										type: 'vendor',
+										vendor_type: ['band', 'dj', 'musician'].at(Math.floor(Math.random() * 3)),
+										phone: phone,
+										genre,
+										locations: {
+											create: [{ city, state, zip }],
+										},
+										bio: `${data.company}, ${data.bonus}, ${data.eye}`,
+										about_me,
+									},
+								],
+							},
+						},
+						select: AuthSelectors.userWithAccount,
+					})
+					newUsers.push(newUser)
+				} catch (error) {
+					console.log(error)
+				}
+			}
+
+			res.status(200).json({ data: newUsers })
 		} catch (error) {
 			res.status(500).send(error)
 		}
