@@ -140,7 +140,6 @@ export class AccountsController {
 						: {}),
 				},
 				select: AccountsSelectors.account,
-				// ...(takeNum > 0 ? { take: takeNum } : {}),
 			})
 
 			const accountsWithAverageRating = await Promise.all(
@@ -156,10 +155,13 @@ export class AccountsController {
 				//@ts-ignore
 				const sorter = sort_by === 'review_count' ? 'total' : 'average_rating'
 				accountsWithAverageRating.sort((a: any, b: any) => {
-					console.log(a?.rating[sorter] ? a?.rating[sorter] : 0)
 					return (b?.rating[sorter] ? b?.rating[sorter] : 0) - (a?.rating[sorter] ? a?.rating[sorter] : 0)
 				})
 			}
+
+			//Reccomended filter
+			//get users locations and genres. 
+			//Create algo to go through each account and assign a score based on matching locaitons and genres.
 
 			const pagedAccounts = takeNum > 0 ? accountsWithAverageRating.slice(0, takeNum) : accountsWithAverageRating
 
@@ -194,8 +196,9 @@ export class AccountsController {
 	async botSignupVendor(req: Request, res: Response) {
 		try {
 			let count = parseInt(req?.params?.count || '1', 10)
-			const newUsers = []
+			const promises = []
 			for (let i = 0; i < count; i++) {
+				console.log('Creating bot', i)
 				const { data } = await axios.get('http://api.namefake.com')
 				const first_name = data.name.split(' ')[0]
 				const last_name = data.name.split(' ')[1]
@@ -238,7 +241,7 @@ export class AccountsController {
 				const about_me = lorem.generateParagraphs(3)
 
 				try {
-					const newUser = await prisma.authUsers.create({
+					const newUserPromise = prisma.authUsers.create({
 						data: {
 							first_name,
 							last_name,
@@ -267,11 +270,13 @@ export class AccountsController {
 						},
 						select: AuthSelectors.userWithAccount,
 					})
-					newUsers.push(newUser)
+					promises.push(newUserPromise)
 				} catch (error) {
 					console.log(error)
 				}
 			}
+
+			const newUsers = await Promise.all([...promises])
 
 			res.status(200).json({ data: newUsers })
 		} catch (error) {
