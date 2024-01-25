@@ -94,7 +94,34 @@ export class AccountsController {
 	async listAccounts(req: AuthenticatedRequest, res: Response) {
 		try {
 			const queryData = new ListAccountsDTO(req.query)
-			const { type, client_type, vendor_type, state } = queryData
+			const { type, client_type, vendor_type, state, search } = queryData
+
+			const ORS: {}[] = []
+			if (search?.length) {
+				const searchStrings = search
+					.trim()
+					.split(' ')
+					.forEach((section) => {
+						ORS.push({
+							first_name: {
+								contains: section,
+								mode: 'insensitive',
+							},
+						})
+						ORS.push({
+							last_name: {
+								contains: section,
+								mode: 'insensitive',
+							},
+						})
+						ORS.push({
+							bio: {
+								contains: section,
+								mode: 'insensitive',
+							},
+						})
+					})
+			}
 
 			const accounts = await prisma.accounts.findMany({
 				where: {
@@ -102,6 +129,11 @@ export class AccountsController {
 					...(vendor_type ? { vendor_type } : {}),
 					...(client_type ? { client_type } : {}),
 					...(state ? { locations: { some: { state } } } : {}),
+					...(search
+						? {
+								OR: ORS,
+						  }
+						: {}),
 				},
 				select: AccountsSelectors.account,
 			})
