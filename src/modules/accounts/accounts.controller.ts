@@ -5,7 +5,7 @@ import { AuthenticatedRequest } from '../../shared/interfaces/authenticatedReque
 import { UpdateAccountDTO } from './dtos/UpdateAccount.dto'
 import { Accounts, Locations } from '@prisma/client'
 import { AccountsSelectors } from './accounts.selectors'
-import { ListAccountsDTO } from './dtos/ListAccounts.dto'
+import { ListAccountsDTO, SORT_BY_ENUM } from './dtos/ListAccounts.dto'
 import { AccountsService } from './accounts.service'
 import axios from 'axios'
 import { AuthSelectors } from '../auth/selectors/auth.selectors'
@@ -97,7 +97,8 @@ export class AccountsController {
 	async listAccounts(req: AuthenticatedRequest, res: Response) {
 		try {
 			const queryData = new ListAccountsDTO(req.query)
-			const { type, client_type, vendor_type, state, search } = queryData
+			const { type, client_type, vendor_type, state, search, take, sort_by } = queryData
+			const takeNum = parseInt(take || '0', 10)
 
 			const ORS: {}[] = []
 			if (search?.length) {
@@ -139,6 +140,7 @@ export class AccountsController {
 						: {}),
 				},
 				select: AccountsSelectors.account,
+				// ...(takeNum > 0 ? { take: takeNum } : {}),
 			})
 
 			const accountsWithAverageRating = await Promise.all(
@@ -150,7 +152,18 @@ export class AccountsController {
 				})
 			)
 
-			res.status(200).json({ data: accountsWithAverageRating })
+			if (sort_by) {
+				//@ts-ignore
+				const sorter = sort_by === 'review_count' ? 'total' : 'average_rating'
+				accountsWithAverageRating.sort((a: any, b: any) => {
+					console.log(a?.rating[sorter] ? a?.rating[sorter] : 0)
+					return (b?.rating[sorter] ? b?.rating[sorter] : 0) - (a?.rating[sorter] ? a?.rating[sorter] : 0)
+				})
+			}
+
+			const pagedAccounts = takeNum > 0 ? accountsWithAverageRating.slice(0, takeNum) : accountsWithAverageRating
+
+			res.status(200).json({ data: pagedAccounts })
 		} catch (error) {
 			res.status(500).send(error)
 		}

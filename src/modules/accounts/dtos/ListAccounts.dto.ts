@@ -1,6 +1,11 @@
 import { CLIENT_TYPE_ENUM, VENDOR_TYPE_ENUM, GENRE_ENUM, ACCOUNT_TYPE_ENUM } from '@prisma/client'
 import { IsString, IsEnum, IsOptional, ValidateNested, IsNumber } from 'class-validator'
 
+export enum SORT_BY_ENUM {
+	'review_count',
+	'average_rating',
+}
+
 export class ListAccountsDTO {
 	constructor(options: ListAccountsDTO) {
 		this.type = options.type
@@ -8,6 +13,8 @@ export class ListAccountsDTO {
 		this.client_type = options.client_type
 		this.state = options.state
 		this.search = options.search
+		this.take = options.take
+		this.sort_by = options.sort_by
 	}
 
 	@IsEnum(ACCOUNT_TYPE_ENUM)
@@ -29,4 +36,12 @@ export class ListAccountsDTO {
 	@IsString()
 	@IsOptional()
 	search?: string
+
+	@IsString()
+	@IsOptional()
+	take?: string
+
+	@IsEnum(SORT_BY_ENUM)
+	@IsOptional()
+	sort_by?: SORT_BY_ENUM
 }
