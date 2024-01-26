@@ -151,19 +151,62 @@ export class AccountsController {
 				})
 			)
 
+			let returnAccounts: any = accountsWithAverageRating
+
 			if (sort_by) {
-				//@ts-ignore
-				const sorter = sort_by === 'review_count' ? 'total' : 'average_rating'
-				accountsWithAverageRating.sort((a: any, b: any) => {
-					return (b?.rating[sorter] ? b?.rating[sorter] : 0) - (a?.rating[sorter] ? a?.rating[sorter] : 0)
-				})
+				if (sort_by === 'score') {
+					const usersAccount = await prisma.accounts.findFirst({
+						where: {
+							user_id: req.authUser?.user_id,
+						},
+						select: {
+							genre: true,
+							locations: true,
+						},
+					})
+
+					const myGenre = new Set(usersAccount?.genre || [])
+					const myStates = new Set(usersAccount?.locations.map((l) => l.state) || [])
+					const myCities = new Set(usersAccount?.locations.map((l) => l.city) || [])
+
+					const accountsWithScores = accountsWithAverageRating
+						.map((acc) => {
+							const intersection = []
+							const { locations, genre } = acc
+							locations.forEach((l) => {
+								if (myCities.has(l.city)) {
+									intersection.push(l)
+								}
+								if (myStates.has(l.state)) {
+									intersection.push(l)
+								}
+							})
+							genre.forEach((g) => {
+								if (myGenre.has(g)) {
+									intersection.push(g)
+								}
+							})
+							return {
+								...acc,
+								score: intersection.length,
+							}
+						})
+						.sort((a, b) => b.score - a.score)
+						.map(({ score, ...rest }) => rest)
+
+					returnAccounts = accountsWithScores
+				} else {
+					returnAccounts = [...accountsWithAverageRating].sort((a: any, b: any) => {
+						return (b?.rating[sort_by] ? b?.rating[sort_by] : 0) - (a?.rating[sort_by] ? a?.rating[sort_by] : 0)
+					})
+				}
 			}
 
 			//Reccomended filter
-			//get users locations and genres. 
+			//get users locations and genres.
 			//Create algo to go through each account and assign a score based on matching locaitons and genres.
 
-			const pagedAccounts = takeNum > 0 ? accountsWithAverageRating.slice(0, takeNum) : accountsWithAverageRating
+			const pagedAccounts = takeNum > 0 ? returnAccounts.slice(0, takeNum) : returnAccounts
 
 			res.status(200).json({ data: pagedAccounts })
 		} catch (error) {

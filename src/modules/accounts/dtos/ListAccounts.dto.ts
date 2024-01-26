@@ -2,8 +2,9 @@ import { CLIENT_TYPE_ENUM, VENDOR_TYPE_ENUM, GENRE_ENUM, ACCOUNT_TYPE_ENUM } fro
 import { IsString, IsEnum, IsOptional, ValidateNested, IsNumber } from 'class-validator'
 
 export enum SORT_BY_ENUM {
-	'review_count',
+	'total',
 	'average_rating',
+	'score'
 }
 
 export class ListAccountsDTO {
@@ -43,5 +44,5 @@ export class ListAccountsDTO {
 
 	@IsEnum(SORT_BY_ENUM)
 	@IsOptional()
-	sort_by?: SORT_BY_ENUM
+	sort_by?: string
 }
