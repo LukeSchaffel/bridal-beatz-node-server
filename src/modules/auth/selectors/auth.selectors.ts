@@ -21,6 +21,7 @@ export class AuthSelectors {
 				links: true,
 				bio: true,
 				about_me: true,
+				images: true
 			},
 		},
 	}

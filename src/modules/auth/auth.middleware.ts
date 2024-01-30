@@ -72,7 +72,7 @@ export class AuthMiddleware {
 		})
 
 		if (!user) {
-			return res.status(500).send({ messagae: 'Invalid email or password' })
+			return res.status(500).send({ message: 'Invalid email or password' })
 		}
 
 		try {

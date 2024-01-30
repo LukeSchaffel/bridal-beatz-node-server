@@ -85,7 +85,7 @@ export class AccountsController {
 			//get refreshed account
 			const refreshedAccount = await prisma.accounts.findUnique({
 				where: { account_id },
-				select: AccountsSelectors.account,
+				select: AccountsSelectors.singleAccount,
 			})
 
 			res.status(200).json({ data: refreshedAccount })
@@ -139,7 +139,7 @@ export class AccountsController {
 						  }
 						: {}),
 				},
-				select: AccountsSelectors.account,
+				select: AccountsSelectors.multipleAccounts,
 			})
 
 			const accountsWithAverageRating = await Promise.all(
@@ -220,7 +220,7 @@ export class AccountsController {
 
 			const account = await prisma.accounts.findFirst({
 				where: { account_id },
-				select: AccountsSelectors.account,
+				select: AccountsSelectors.singleAccount,
 			})
 
 			if (!account) {

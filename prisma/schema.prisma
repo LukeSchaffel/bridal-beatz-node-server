@@ -41,6 +41,7 @@ model Accounts {
   links     Links[]
   authUser  AuthUsers   @relation(fields: [user_id], references: [user_id])
   reviews   Reviews[]
+  images    Images[]
 }
 
 model Links {
@@ -69,6 +70,18 @@ model Reviews {
   creator_id Int
 
   account Accounts @relation(fields: [account_id], references: [account_id])
+}
+
+model Images {
+  image_id     Int     @id @default(autoincrement())
+  account_id   Int
+  url          String
+  meta         Json // Extra info dump from imagekit
+  image_kit_id String
+  avatar       Boolean @default(false)
+
+  account    Accounts @relation(fields: [account_id], references: [account_id])
+  created_at DateTime @default(now())
 }
 
 enum GENRE_ENUM {
