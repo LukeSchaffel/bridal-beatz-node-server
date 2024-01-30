@@ -13,20 +13,21 @@ export class ImageKitController {
 	async uploadImage(req: AuthenticatedRequest, res: Response) {
 		try {
 			const account_id = parseInt(req.params.account_id, 10)
-			const { file } = req.body
-			const img = await imagekit.upload({
-				file,
-				fileName: 'firsttry.jpg',
-				folder: `${process.env.DEV_OR_PROD}/images/accounts/${account_id}`,
-				extensions: [
-					{
-						name: 'google-auto-tagging',
-						maxTags: 5,
-						minConfidence: 1,
-					},
-				],
-			})
-			res.status(200).json({ data: img.url })
+			if (req.file) {
+				const img = await imagekit.upload({
+					file: req.file.buffer,
+					fileName: 'firsttry.jpg',
+					folder: `${process.env.DEV_OR_PROD}/images/accounts/${account_id}`,
+					extensions: [
+						{
+							name: 'google-auto-tagging',
+							maxTags: 5,
+							minConfidence: 1,
+						},
+					],
+				})
+				res.status(200).json({ data: img })
+			}
 		} catch (error) {
 			res.status(500).send(error)
 		}
