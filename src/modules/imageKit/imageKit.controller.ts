@@ -2,6 +2,7 @@ import ImageKit from 'imagekit'
 import { AuthenticatedRequest } from '../../shared/interfaces/authenticatedRequest'
 import { Response } from 'express'
 import { prisma } from '../../../prismaClient'
+import { UploadImageDTO } from './dtos/uploadImage.dto'
 
 export const imagekit = new ImageKit({
 	publicKey: process.env.IMAGEKIT_PUBLIC_API_KEY as string,
@@ -13,7 +14,8 @@ export class ImageKitController {
 	async uploadImage(req: AuthenticatedRequest, res: Response) {
 		try {
 			const account_id = parseInt(req.params.account_id, 10)
-			const { type } = req.query
+			const reqData = new UploadImageDTO(req.query)
+			const { type } = reqData
 
 			const existingImages = await prisma.images.findMany({ where: { account_id } })
 			const existingAvatar = await prisma.images.findFirst({ where: { account_id, avatar: true } })
