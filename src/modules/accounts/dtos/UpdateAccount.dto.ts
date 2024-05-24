@@ -25,6 +25,26 @@ export class CreateOrUpdateLocationDTO {
 	location_id?: number
 }
 
+export class CreateOrUpdateLinkDTO {
+	constructor(options: CreateOrUpdateLinkDTO) {
+		this.url = options.url
+		this.title = options.url
+		this.link_id = options.link_id
+	}
+
+	@IsString()
+	@IsOptional()
+	url?: string
+
+	@IsString()
+	@IsOptional()
+	title?: string
+
+	@IsNumber()
+	@IsOptional()
+	link_id?: number
+}
+
 export class UpdateAccountDTO {
 	constructor(options: UpdateAccountDTO) {
 		this.first_name = options.first_name
@@ -37,6 +57,7 @@ export class UpdateAccountDTO {
 		this.links = options.links
 		this.bio = options.bio
 		this.about_me = options.about_me
+		this.links = options.links
 	}
 
 	@IsString()
@@ -77,5 +98,5 @@ export class UpdateAccountDTO {
 
 	@ValidateNested({ each: true })
 	@IsOptional()
-	links?: string[]
+	links?: CreateOrUpdateLinkDTO[]
 }

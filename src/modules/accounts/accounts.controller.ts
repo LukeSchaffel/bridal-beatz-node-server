@@ -33,6 +33,24 @@ export class AccountsController {
 				},
 			})
 
+			//Delete links that are not in the form
+			const linkIdsToDelete: number[] = []
+			links?.forEach((l) => {
+				if (l.link_id) {
+					linkIdsToDelete.push(l.link_id)
+				}
+			})
+			await prisma.links.deleteMany({
+				where: {
+					account_id,
+					NOT: {
+						link_id: {
+							in: linkIdsToDelete,
+						},
+					},
+				},
+			})
+
 			// Delete locations that are not in the form
 			const idsToDelete: number[] = []
 			locations?.forEach((l) => {
@@ -50,6 +68,32 @@ export class AccountsController {
 					},
 				},
 			})
+
+			const createdAndUpdateLinks = await Promise.all(
+				(links || []).map(async (l: any) => {
+					if (l.link_id) {
+						return prisma.links.update({
+							where: { link_id: l.link_id },
+							data: {
+								url: l.url,
+								title: l.title,
+							},
+						})
+					} else {
+						try {
+							return prisma.links.create({
+								data: {
+									url: l.url,
+									title: l.title,
+									account: { connect: { account_id } },
+								},
+							})
+						} catch (error) {
+							console.log(error)
+						}
+					}
+				})
+			)
 
 			const createdAndUpdatedLocations = await Promise.all(
 				(locations || []).map(async (l: any) => {
