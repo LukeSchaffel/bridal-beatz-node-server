@@ -21,7 +21,7 @@ app.use(cors())
 app.get('/', (req: Request, res: Response) => {
 	res.send('hello')
 })
-
+console.log('the database URL is ', process.env.DATABASE_URL)
 app.listen(port, () => {
 	console.log(`⚡️[server]: Server is running at http://localhost:${port}`)
 })
